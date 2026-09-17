@@ -34,3 +34,7 @@ Watch mode:
 ```bash
 npm run watch
 ```
+
+## Licence
+
+Apache-2.0. See `LICENSE`.
