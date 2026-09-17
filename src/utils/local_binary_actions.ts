@@ -4,6 +4,7 @@ import { readFile } from 'fs/promises';
 import * as vscode from 'vscode';
 import { extract } from 'dir-archiver';
 import * as tar from 'tar';
+import { GetLSPBinariesData, GitBinaryItem } from "./download_binary";
 
 export async function LoacateLSPBinary(ctx: ExtensionContext, pattern: string) {
     // path of metacall lsp archive
@@ -12,12 +13,18 @@ export async function LoacateLSPBinary(ctx: ExtensionContext, pattern: string) {
     let archiveGot: string = '';
     // search and locate lsp binary
     try {
+        const binaries = await GetLSPBinariesData();
         const entriesGot = await vscode.workspace.fs.readDirectory(locatePath);
         
         const archiveEntriesFound = entriesGot.filter(([name, type]) => {
             if (type === vscode.FileType.File && (/^meta-call-lsp.*\.zip$/.test(name) || /^meta-call-lsp.*\.tar\.gz$/.test(name))) {
-                archiveGot = name;
-                return true;
+                const found: GitBinaryItem | undefined = binaries.find((b) => b.name === name);
+                if (found) {
+                    archiveGot = name;
+                    return true;
+                } else {
+                    return false;
+                }
             }
             return false;
         });
@@ -33,7 +40,7 @@ export async function LoacateLSPBinary(ctx: ExtensionContext, pattern: string) {
             type === vscode.FileType.File && name === 'meta-call-lsp'
         );
 
-        if (binaryEntriesFound.length > 0) {
+        if (binaryEntriesFound.length > 0 && archiveEntriesFound.length > 0) {
             isBinaryLocated = true;
             return isBinaryLocated;
         }

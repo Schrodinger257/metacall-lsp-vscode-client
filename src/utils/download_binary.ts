@@ -6,7 +6,7 @@ type GitBinary = {
     name: string,
     browser_download_url: string
 }
-type GitBinaryItem = {
+export type GitBinaryItem = {
     name: string,
     downloadURL: string
 }
@@ -44,7 +44,7 @@ export async function DownloadBinary(ctx: ExtensionContext, name: string) {
     return downloadedBinary.fsPath;
 }
 
-async function GetLSPBinariesData() {
+export async function GetLSPBinariesData() {
     let binaries: GitBinaryItem[] = [];
 
     const url: string = 'https://api.github.com/repos/metacall/lsp/releases/latest';
