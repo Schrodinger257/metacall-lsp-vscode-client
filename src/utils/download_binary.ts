@@ -1,5 +1,5 @@
 import { getApi, FileDownloader } from '@microsoft/vscode-file-downloader-api';
-import {ExtensionContext, workspace} from "vscode";
+import {ExtensionContext} from "vscode";
 import * as vscode from 'vscode';
 
 type GitBinary = {
@@ -13,27 +13,34 @@ type GitBinaryItem = {
 
 export async function DownloadBinary(ctx: ExtensionContext, name: string) {
     const binaries: Promise<GitBinaryItem[]> = GetLSPBinariesData();
-    let binary: GitBinaryItem[] = [];
+    let binary: GitBinaryItem | undefined;
     let downloadedBinary: vscode.Uri = vscode.Uri.parse('');
 
     try {
-        binary = (await binaries).filter((item: GitBinaryItem) => {
-            if (item.name.includes(name)) {
-                return item;
-            }
+        binary = (await binaries).find((item: GitBinaryItem) => {
+            const isArchive = item.name.endsWith('.tar.gz') || item.name.endsWith('.zip');
+            const isChecksum = item.name.endsWith('.sha256');
+
+            return item.name.includes(name) && isArchive && !isChecksum;
         });
+
+        if (!binary) {
+            throw new Error(`No downloadable archive found for ${name}`);
+        }
 
         const fileDownloader: FileDownloader = await getApi();
     
         downloadedBinary = await fileDownloader.downloadFile(
-            vscode.Uri.parse(binary[0].downloadURL),
-            binary[0].name,
+            vscode.Uri.parse(binary.downloadURL),
+            binary.name,
             ctx
         );
+
+        vscode.window.showInformationMessage(`Downloaded: ${binary.name}`);
     } catch(err) {
         vscode.window.showErrorMessage(`${err}`);
     }
-    
+
     return downloadedBinary.fsPath;
 }
 

@@ -38,7 +38,7 @@ export async function MatchBinary(): Promise<string | undefined> {
         return;
     }
 
-    const match = `${arch}-${os}`;
+    const match: string = `${arch}-${os}`;
     window.showInformationMessage('MetaCall-lsp download match: ' + match);
     console.log(match);
     return match;
