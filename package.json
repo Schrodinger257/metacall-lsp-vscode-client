@@ -54,5 +54,8 @@
   "dependencies": {
     "@microsoft/vscode-file-downloader-api": "^1.0.1",
     "vscode-languageclient": "^10.1.1"
-  }
+  },
+  "extensionDependencies": [
+    "mindaro-dev.file-downloader"
+  ]
 }
