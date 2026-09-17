@@ -1,7 +1,10 @@
 {
     "compilerOptions": {
-        "module": "Node16",
+        "module": "NodeNext",
+        "moduleResolution": "NodeNext",
         "target": "ES2022",
+        "esModuleInterop": true,
+        "noEmit": true,
         "lib": [
             "ES2022"
         ],

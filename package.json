@@ -36,8 +36,10 @@
     "test": "vscode-test"
   },
   "devDependencies": {
+    "@types/archiver": "^8.0.0",
     "@types/mocha": "^10.0.10",
     "@types/node": "24.x",
+    "@types/unzipper": "^0.10.11",
     "@types/vscode": "^1.137.0",
     "@vscode/test-cli": "^0.0.15",
     "@vscode/test-electron": "^3.0.0",
@@ -53,6 +55,8 @@
   },
   "dependencies": {
     "@microsoft/vscode-file-downloader-api": "^1.0.1",
+    "dir-archiver": "^4.0.0",
+    "tar": "^7.5.22",
     "vscode-languageclient": "^10.1.1"
   },
   "extensionDependencies": [
