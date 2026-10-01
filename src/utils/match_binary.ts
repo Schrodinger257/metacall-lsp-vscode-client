@@ -1,9 +1,12 @@
 import * as process from 'process';
 import { window } from 'vscode';
+import { traceChannel } from '../extension';
 
 export async function MatchBinary(): Promise<string | undefined> {
     let os: string = '';
     let arch: string = '';
+
+    traceChannel.info("[Extension] Determine suitable MetaCall-lsp binary for user device");
 
     switch (process.platform) {
         case 'win32':
@@ -31,15 +34,14 @@ export async function MatchBinary(): Promise<string | undefined> {
     }
 
     if (!os) {
-        window.showErrorMessage('Failed to determine OS for MetaCall-lsp');
+        traceChannel.error(`[Extension] Error occured while determining user OS.`);
         return;
     } else if (!arch) {
-        window.showErrorMessage('Failed to determine Architecture for MetaCall-lsp');
+        traceChannel.error(`[Extension] Error occured while determining user machine architecture.`);
         return;
     }
 
     const match: string = `${arch}-${os}`;
-    window.showInformationMessage('MetaCall-lsp download match: ' + match);
-    console.log(match);
+    traceChannel.info(`[Extension] Determined suitable MetaCall-lsp binary as: ${match}`);
     return match;
 }
