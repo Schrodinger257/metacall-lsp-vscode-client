@@ -5,6 +5,7 @@ import * as vscode from 'vscode';
 import { extract } from 'dir-archiver';
 import * as tar from 'tar';
 import { binaries, GitBinaryItem } from "./download_binary";
+import { traceChannel } from "../extension";
 
 export async function LoacateLSPBinary(ctx: ExtensionContext) {
     // path of metacall lsp archive
@@ -13,9 +14,21 @@ export async function LoacateLSPBinary(ctx: ExtensionContext) {
     let archiveGot: string = '';
     // search and locate lsp binary
     try {
+        traceChannel.info("[Extension] Locating MetaCall-lsp binary");
         let githubBinaries = binaries;
         const entriesGot = await vscode.workspace.fs.readDirectory(locatePath);
         
+        const binaryEntriesFound = entriesGot.filter(([name, type]) =>
+            type === vscode.FileType.File && name === 'meta-call-lsp'
+        );
+        
+        if (binaryEntriesFound.length > 0) {
+            traceChannel.info("[Extension] Located MetaCall-lsp binary");
+            isBinaryLocated = true;
+        }
+
+        traceChannel.info("[Extension] Determine MetaCall-lsp binary version");
+
         const archiveEntriesFound = entriesGot.filter(([name, type]) => {
             if (type === vscode.FileType.File && (/^meta-call-lsp.*\.zip$/.test(name) || /^meta-call-lsp.*\.tar\.gz$/.test(name))) {
                 const found: GitBinaryItem | undefined = githubBinaries.find((b) => b.name === name);
@@ -29,24 +42,16 @@ export async function LoacateLSPBinary(ctx: ExtensionContext) {
             return false;
         });
 
-        if (archiveEntriesFound.length > 0) {
-            const archivePath:string = path.join(ctx.globalStorageUri.fsPath , 'file-downloader-downloads', archiveGot);
-            await ExtractLSPArchive(archivePath);
-            isBinaryLocated = true;
-            return isBinaryLocated;
+        if (archiveEntriesFound.length === 0 && !archiveGot) {
+            traceChannel.warn("[Extension] MetaCall-lsp binary version is old. Getting ready to download Latest one");
+            isBinaryLocated = false;
+        } else {
+            traceChannel.info("[Extension] MetaCall-lsp binary is the latest version");
         }
-
-        const binaryEntriesFound = entriesGot.filter(([name, type]) =>
-            type === vscode.FileType.File && name === 'meta-call-lsp'
-        );
-
-        if (binaryEntriesFound.length > 0 && archiveEntriesFound.length > 0) {
-            isBinaryLocated = true;
-            return isBinaryLocated;
-        }
-
+        
+        return isBinaryLocated;
     } catch(err) {
-        vscode.window.showErrorMessage(`${err}`);
+        traceChannel.error(`[Extension] Error occured while locating MetaCall-lsp binary. error: ${err}`);
     }
 
     return isBinaryLocated;
@@ -56,8 +61,10 @@ export async function ExtractLSPArchive(archive: string) {
     const dest: string = path.dirname(archive);
 
     try {
+        traceChannel.info("[Extension] Extract MetaCall-lsp binary archive");
         if (archive.endsWith('.zip')) {
             await extract(archive, dest);
+            traceChannel.info("[Extension] Extracted MetaCall-lsp binary archive");
             return;
         }
 
@@ -67,9 +74,10 @@ export async function ExtractLSPArchive(archive: string) {
                 cwd: dest,
                 strip: 1, // extract contents in the same folder
             });
+            traceChannel.info("[Extension] Extracted MetaCall-lsp binary archive");
             return;
         }
     } catch(err) {
-        vscode.window.showErrorMessage(`${err}`);
+        traceChannel.error(`[Extension] Error occured while extracting MetaCall-lsp binary archive. error: ${err}`);
     }
 }
