@@ -14,13 +14,16 @@ import {
 } from 'vscode-languageclient/node';
 
 let client: LanguageClient | undefined;
-const traceChannel = vscode.window.createOutputChannel("MetaCall LSP Tracer", {log: true});
+// trace channel for outputing the progress, errors and actions of the extension and lsp in vscode output channels
+export const traceChannel = vscode.window.createOutputChannel("MetaCall LSP Tracer", {log: true});
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export async function activate(context: vscode.ExtensionContext) {
 	console.error("MetaCall extension activate");
 	let allowedIds: string[] = ["python", "javascript", "typescript", "c", "rust", "cpp"];
 	let isBinaryLocated: boolean = false;
+
+	traceChannel.info("[Extension] Trace channel created");
 	// fetch github binaries
 	await GetLSPBinariesData();
 	// get system lsp binary pattern
@@ -63,8 +66,6 @@ export async function activate(context: vscode.ExtensionContext) {
 	);
 
 	client.setTrace(Trace.Verbose);
-
-	traceChannel.info("Trace channel created");
 
 	await client.start();
 	

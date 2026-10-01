@@ -1,6 +1,7 @@
 import { getApi, FileDownloader } from '@microsoft/vscode-file-downloader-api';
 import {ExtensionContext} from "vscode";
 import * as vscode from 'vscode';
+import { traceChannel } from '../extension';
 
 type GitBinary = {
     name: string,
@@ -19,6 +20,7 @@ export async function DownloadBinary(ctx: ExtensionContext, name: string) {
     let githubBinaries = binaries;
     
     try {
+        traceChannel.info("[Extension] Downloading MetaCall-lsp binary");
         binary = githubBinaries.find((item: GitBinaryItem) => {
             const isArchive = item.name.endsWith('.tar.gz') || item.name.endsWith('.zip');
             const isChecksum = item.name.endsWith('.sha256');
@@ -38,9 +40,9 @@ export async function DownloadBinary(ctx: ExtensionContext, name: string) {
             ctx
         );
 
-        vscode.window.showInformationMessage(`Downloaded: ${binary.name}`);
+	    traceChannel.info("[Extension] Trace channel created");
     } catch(err) {
-        vscode.window.showErrorMessage(`${err}`);
+        traceChannel.error(`[Extension] Error occured while downloading MetaCall-lsp binary. error: ${err}`);
     }
 
     return downloadedBinary.fsPath;
@@ -50,11 +52,16 @@ export async function GetLSPBinariesData() {
 
     const url: string = 'https://api.github.com/repos/metacall/lsp/releases/latest';
     try {
+        traceChannel.info("[Extension] Fetch github MetaCall-lsp binaries data");
         const res: Response = await fetch(url,
             {
                 headers: { 'User-Agent': 'vscode-extension' }
             }
         );
+
+        if (!res.ok) {
+            throw new Error("Failed to fetch github MetaCall-lsp binaries data");
+        }
 
         const data: any = await res.json();
 
@@ -66,7 +73,8 @@ export async function GetLSPBinariesData() {
     
             return item;
         });
+        traceChannel.info("[Extension] Fetched github MetaCall-lsp binaries data");
     } catch(err) {
-        vscode.window.showErrorMessage(`${err}`);
+        traceChannel.error(`[Extension] Error occured while fetching MetaCall-lsp binaries. error: ${err}`);
     }
 }
