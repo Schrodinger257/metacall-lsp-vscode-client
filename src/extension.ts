@@ -37,6 +37,8 @@ export async function activate(context: vscode.ExtensionContext) {
 		const downloadPath: string = await DownloadBinary(context, pattern);
 		await ExtractLSPArchive(downloadPath);
 	}
+
+	traceChannel.info("[Extension] Preparing MetaCall-lsp binary");
 	const lspBinary: string = path.join(context.globalStorageUri.fsPath, 'file-downloader-downloads', 'meta-call-lsp');
 
 	const lspOptions: ServerOptions = {
@@ -68,6 +70,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	client.setTrace(Trace.Verbose);
 
 	await client.start();
+	traceChannel.info("[Extension] MetaCall-lsp started successfully");
 	
 	traceChannel.show(true);
 }
@@ -75,5 +78,6 @@ export async function activate(context: vscode.ExtensionContext) {
 // This method is called when your extension is deactivated
 export async function deactivate() {
 	await client?.dispose();
+	traceChannel.info("[Extension] MetaCall-lsp shutdown successfully");
 	client = undefined;
 }
