@@ -1,3 +1,30 @@
-node_modules
-dist
+# Dependency directories
+node_modules/
+
+# TypeScript compiler output
+out/
+dist/
+
+# Test results and coverage reports
+.vscode-test/
+coverage/
+
+# Local VS Code configuration & history
+.vscode/settings.json
+.history/
+
+# Log files
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Package lock variants (Optional: keep if you want strict lockfile enforcement)
+# yarn.lock
+# package-lock.jsons
+
 .meta-ast
